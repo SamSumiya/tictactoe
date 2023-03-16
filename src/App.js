@@ -6,6 +6,7 @@ import { useState } from "react";
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
+  const [ isDraw, setIsDraw ] = useState(false)
   const [xPlaying, setXPlaying] = useState(true);
   const [scores, setScores] = useState(
     localStorage.getItem("scores")
@@ -29,6 +30,17 @@ function App() {
 
   localStorage.setItem("scores", JSON.stringify(scores));
 
+  const checkDraw = (board) => {
+    let count = 0
+    for (let box of board) {
+      if (box === null) {
+        count += 1
+      }
+    }
+
+    return count === 1 ? setIsDraw(true) : setIsDraw(false)
+  }
+
   const handleBoxClick = (idx) => {
     const updatedBoard = board.map((value, i) => {
       if (i === idx) {
@@ -37,12 +49,11 @@ function App() {
         return value;
       }
     });
-
+    checkDraw(updatedBoard)
     if (!updatedBoard.includes(null)) {
       resetBoard()
       return 
     }
-
 
     const winner = checkWinner(updatedBoard);
 
@@ -78,15 +89,15 @@ function App() {
     }
   };
 
-
   return (
     <div className="App">
       <ScoreBoard
         scores={JSON.parse(localStorage.getItem("scores"))}
         xPlaying={xPlaying}
       />
-      <Board board={board} onClick={gameOver ? resetBoard : handleBoxClick} />
-      {gameOver && <ResetGame scores={scores} resetBoard={resetBoard} />}
+      <Board board={board} onClick={gameOver ? resetBoard : handleBoxClick} / >
+      { gameOver && <ResetGame scores={scores} resetBoard={resetBoard} /> }
+      { isDraw && <ResetGame scores={scores} resetBoard={resetBoard} /> }
     </div>
   );
 }
